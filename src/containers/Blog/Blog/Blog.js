@@ -1,10 +1,19 @@
 import React, { Component } from 'react';
 import './Blog.css';
 import Posts from './Posts/Posts';
-import { Route, Link } from 'react-router-dom';
-import NewPost from './NewPost/NewPost';
+import { Route, NavLink, Switch, Redirect} from 'react-router-dom';
+// import NewPost from './NewPost/NewPost';
+import asyncComponent from '../../../hoc/asyncComponent';
+
+const AsyncNewPost = asyncComponent(() => {
+    return import('./NewPost/NewPost');
+});
 
 class Blog extends Component {
+
+    state = {
+        auth: false
+    }
 
     render () {
         
@@ -13,15 +22,23 @@ class Blog extends Component {
                 <header>
                     <nav>
                         <ul>
-                            <li><Link to="/">Home</Link></li>
-                            <li><Link to={{
+                            <li><NavLink to="/posts/" exact>Home</NavLink></li>
+                            <li><NavLink to={{
                                 pathname: '/new-post',
-                            }}>New Post</Link></li>
+                            }}>New Post</NavLink></li>
                         </ul>
                     </nav>
                 </header>
-                <Route path="/" exact component={Posts}></Route>
-                <Route path="/new-post" component={NewPost}></Route>
+                <Switch>
+                    {/* if auth is not set, don't route user */}
+                    {/* {this.state.auth ? <Route path="/new-post" component={AsyncNewPost}/> : null}; */}
+                    <Route path="/new-post" component={AsyncNewPost}/>
+                    <Route path="/posts/" component={Posts}></Route>
+                    <Route render={() => <h1>404 Not Found</h1>}/>
+                    {/* Redirect and not found wont work together */}
+                    {/* <Redirect from="/" to="/posts"/> */}
+                    {/* <Route path="/" component={Posts}></Route> */}
+                </Switch>
             </div>
         );
     }
